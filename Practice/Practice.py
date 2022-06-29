@@ -3,9 +3,12 @@ from datetime import datetime
 from datetime import timedelta
 
 l = login_values = {
-    "player": "password1",
-    "ololo": "password2"
+    "ololo1": "password1",
+    "ololo2": "password2"
 }
+
+class UserDoesNotExist(Exception):
+    pass
 
 def check_password(username: str, password) -> bool:
     return l.get(username) == password
@@ -16,7 +19,8 @@ def decor_login(func):
         if check_password(username, password):
             return func(username, password)
         else:
-            return False
+            #return False
+            raise UserDoesNotExist("User not found")
 
     return inner
 
@@ -34,6 +38,7 @@ def parser():
 
 
 block_duration_minutes = 5
+
 
 
 def login_execution() -> bool:
@@ -60,37 +65,46 @@ def login_execution() -> bool:
         else:
             username = input("Input username: \n>> ")
             password = input("Input password: \n>> ")
-
-        if login(username, password):
-            print("Logged in")
-            return True
-        else:
+        try:
+            if login(username, password):
+                print("Logged in")
+                return True
+            else:
+                print("Attempts left", attempts - attempt)
+        except UserDoesNotExist as e:
             print("Attempts left", attempts - attempt)
     else:
-        print("Attempts expired. You've been blocked for " + str(block_duration_minutes) + " minutes")
-        return False
+        #print("Attempts expired. You've been blocked for " + str(block_duration_minutes) + " minutes")
+        #return False
+        raise UserDoesNotExist("User not found")
+
 
 
 def if_not_blocked(last_wrong_attempt_time) -> bool:
-    return last_wrong_attempt_time == None or datetime.now() >= (
-                last_wrong_attempt_time + timedelta(minutes=block_duration_minutes))
+    return last_wrong_attempt_time == None or datetime.now() >= (last_wrong_attempt_time + timedelta(minutes=block_duration_minutes))
 
 
 def main():
     last_wrong_attempt_time = None
 
     while True:
-        if if_not_blocked(last_wrong_attempt_time):
-            if login_execution():
-                break
-            else:
-                last_wrong_attempt_time = datetime.now()
+        try:
+            if if_not_blocked(last_wrong_attempt_time):
+                if login_execution():
+                    break
+                else:
+                    last_wrong_attempt_time = datetime.now()
+        except UserDoesNotExist as e:
+            print("Error", e)
+            print("Attempts expired. You've been blocked for " + str(block_duration_minutes) + " minutes")
+            last_wrong_attempt_time = datetime.now()
 
     print("Verification successful")
 
 
 if __name__ == "__main__":
     main()
+
 
 
 
