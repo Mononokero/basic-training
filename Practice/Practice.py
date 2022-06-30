@@ -37,7 +37,7 @@ def parser():
     return parser.parse_args()
 
 
-block_duration_minutes = 5
+block_duration_minutes = 1
 
 
 
@@ -72,11 +72,12 @@ def login_execution() -> bool:
             else:
                 print("Attempts left", attempts - attempt)
         except UserDoesNotExist as e:
+            print("Error", e)
             print("Attempts left", attempts - attempt)
     else:
-        #print("Attempts expired. You've been blocked for " + str(block_duration_minutes) + " minutes")
-        #return False
-        raise UserDoesNotExist("User not found")
+        print("Attempts expired. You've been blocked for " + str(block_duration_minutes) + " minutes")
+        return False
+        #raise UserDoesNotExist("User not found")
 
 
 
@@ -88,16 +89,11 @@ def main():
     last_wrong_attempt_time = None
 
     while True:
-        try:
-            if if_not_blocked(last_wrong_attempt_time):
-                if login_execution():
-                    break
-                else:
-                    last_wrong_attempt_time = datetime.now()
-        except UserDoesNotExist as e:
-            print("Error", e)
-            print("Attempts expired. You've been blocked for " + str(block_duration_minutes) + " minutes")
-            last_wrong_attempt_time = datetime.now()
+        if if_not_blocked(last_wrong_attempt_time):
+            if login_execution():
+                break
+            else:
+                last_wrong_attempt_time = datetime.now()
 
     print("Verification successful")
 
