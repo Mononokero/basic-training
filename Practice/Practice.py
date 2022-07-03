@@ -1,26 +1,68 @@
+import json
 import argparse
 from datetime import datetime
 from datetime import timedelta
 
-l = login_values = {
-    "ololo1": "password1",
-    "ololo2": "password2"
-}
+# l = login_values = {
+#     "ololo1": "pass1",
+#     "ololo2": "pass2"
+# }
+
+filename = "l.json"
+# s = json.dumps(l)
+# with open(filename, "w", encoding="utf-8") as file:
+#     file.write(s)
+
+with open("l.json", "r") as login_file:
+    try:
+        accounts = json.load(login_file)
+    except:
+        accounts = {}
+print(accounts)
+
+def create_user():
+    global accounts
+    create_login = input("Create login name: ")
+    if create_login in accounts:
+        print("Login name already exist!")
+    else:
+        create_password = input("Create password: ")
+        accounts[create_login] = create_password
+        print("New User created! Please log-in.")
+        save_data()
+#create_user()
+
+def save_data():
+    new_data = accounts
+    with open("l.json", encoding="utf-8") as file:
+        data = json.load(file)
+        data.update(new_data)
+        with open(filename, "w", encoding="utf-8") as outfile:
+            json.dump(data, outfile, ensure_ascii=False, indent=2)
+
 
 class UserDoesNotExist(Exception):
     pass
 
 def check_password(username: str, password) -> bool:
-    return l.get(username) == password
+    with open("l.json") as dataf:
+        data = json.load(dataf)
+        result = data.get(username) == password
+        if result:
+            return True
+        else:
+            raise UserDoesNotExist("User not found")
 
 
 def decor_login(func):
     def inner(username, password):
-        if check_password(username, password):
-            return func(username, password)
-        else:
-            #return False
-            raise UserDoesNotExist("User not found")
+        try:
+            if check_password(username, password):
+                return func(username, password)
+        except UserDoesNotExist as e:
+            print("Error", e)
+        return False
+
 
     return inner
 
@@ -38,7 +80,6 @@ def parser():
 
 
 block_duration_minutes = 1
-
 
 
 def login_execution() -> bool:
@@ -65,19 +106,18 @@ def login_execution() -> bool:
         else:
             username = input("Input username: \n>> ")
             password = input("Input password: \n>> ")
-        try:
-            if login(username, password):
-                print("Logged in")
-                return True
-            else:
-                print("Attempts left", attempts - attempt)
-        except UserDoesNotExist as e:
-            print("Error", e)
+
+        if login(username, password):
+            print("Logged in")
+            return True
+        else:
             print("Attempts left", attempts - attempt)
     else:
-        print("Attempts expired. You've been blocked for " + str(block_duration_minutes) + " minutes")
+        #print("Attempts expired")
+        #print("Attempts expired. You've been blocked for " + str(block_duration_minutes) + " minutes")
         return False
-        #raise UserDoesNotExist("User not found")
+
+
 
 
 
@@ -93,14 +133,11 @@ def main():
             if login_execution():
                 break
             else:
-                last_wrong_attempt_time = datetime.now()
+                #last_wrong_attempt_time = datetime.now()
+                create_user()
 
     print("Verification successful")
 
 
 if __name__ == "__main__":
     main()
-
-
-
-
