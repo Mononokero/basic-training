@@ -67,7 +67,7 @@ def run():
     game = Game(player, computer)
 
     while True:
-        choice = input("Do you wanna play a game (Y/N)?\n >>> ")
+        choice = input("Let's play? (Y/N)?\n >>> ")
         if choice == "y":
             game.play()
         elif choice == "n":
