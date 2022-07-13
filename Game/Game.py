@@ -8,7 +8,7 @@ wins = {"rock": ["scissors", "lizard"],
 }
 
 
-def get_user_choise():
+def get_user_choice():
     print("Hello! You`re playing: Rock-paper-scissors-lizard-spock")
     while True:
         user_input = input("Choose your gesture (rock paper scissors lizard spock)?\n")
@@ -33,12 +33,12 @@ def play_again():
 
 
 def game():
-    computer_choice = random.choice(list(wins.keys()))
-    user_choice = get_user_choise()
-    print("Computer`s choice:", computer_choice)
-    if computer_choice in wins[user_choice]:
+    computer = random.choice(list(wins.keys()))
+    user = get_user_choice()
+    print("Computer`s choice:", computer)
+    if computer in wins[user]:
         print("Player win!")
-    elif user_choice in wins[computer_choice]:
+    elif user in wins[computer]:
         print("Computer wins")
     else:
         print("Tie.")
